@@ -1,0 +1,1296 @@
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Hedge Terminal V33 (Public)</title>
+    <script src="https://cdn.tailwindcss.com/"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'Inter', system-ui, sans-serif;
+        background-color: #f8fafc;
+        color: #0f172a;
+      }
+      .font-mono-num {
+        font-family: 'JetBrains Mono', monospace;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.5px;
+      }
+      ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 2px;
+      }
+      .card {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        overflow: hidden;
+        margin-bottom: 12px;
+      }
+      .list-row {
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background 0.1s;
+        cursor: pointer;
+      }
+      .list-row:hover {
+        background-color: #f8fafc;
+      }
+      .btn-sel {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        font-size: 10px;
+        font-weight: 700;
+        border: 1px solid #cbd5e1;
+        color: #64748b;
+        background: white;
+        cursor: pointer;
+        position: relative;
+        z-index: 10;
+      }
+      .btn-sel.active-a {
+        background: #16a34a;
+        border-color: #16a34a;
+        color: white;
+      }
+      .btn-sel.active-b {
+        background: #dc2626;
+        border-color: #dc2626;
+        color: white;
+      }
+      .input-clean {
+        background: transparent;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        font-size: 12px;
+        padding: 6px 10px;
+        width: 100%;
+        outline: none;
+      }
+      .input-clean:focus {
+        border-color: #3b82f6;
+      }
+      .strategy-box {
+        background: #f8fafc;
+        padding: 8px;
+        border-top: 1px solid #e2e8f0;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .hedge-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 8px;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        background: #fff;
+      }
+      .hedge-buy {
+        background: #f0fdf4;
+        border-color: #bbf7d0;
+        color: #166534;
+      }
+      .hedge-sell {
+        background: #fef2f2;
+        border-color: #fecaca;
+        color: #991b1b;
+      }
+      .math-val {
+        font-weight: 800;
+        font-size: 12px;
+      }
+      .plat-tag {
+        font-size: 9px;
+        opacity: 0.7;
+        margin-right: 4px;
+        border: 1px solid currentColor;
+        padding: 0 2px;
+        border-radius: 2px;
+        text-transform: uppercase;
+      }
+      .btn-refresh {
+        padding: 4px;
+        border-radius: 50%;
+        color: #94a3b8;
+        transition: all 0.2s;
+        display: inline-flex;
+        z-index: 10;
+        position: relative;
+      }
+      .btn-refresh:hover {
+        background: #e2e8f0;
+        color: #3b82f6;
+      }
+      .spin-anim {
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin {
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .badge {
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-size: 9px;
+        font-weight: 700;
+      }
+      .badge-op {
+        background: #fff7ed;
+        color: #ea580c;
+        border: 1px solid #ffedd5;
+      }
+      .badge-pm {
+        background: #eff6ff;
+        color: #2563eb;
+        border: 1px solid #dbeafe;
+      }
+      .depth-box {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #fff;
+      }
+      .depth-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 1px 6px;
+        border-bottom: 1px dashed #f1f5f9;
+      }
+      .depth-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 2px 6px;
+        color: #94a3b8;
+        font-size: 9px;
+        font-weight: bold;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      .bg-ask {
+        background-color: rgba(220, 38, 38, 0.04);
+        color: #dc2626;
+      }
+      .bg-bid {
+        background-color: rgba(22, 163, 74, 0.04);
+        color: #16a34a;
+      }
+      .stat-table {
+        width: 100%;
+        font-size: 11px;
+        text-align: right;
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
+      .stat-table th {
+        text-align: right;
+        font-weight: 600;
+        color: #64748b;
+        padding: 6px 8px;
+        border-bottom: 1px solid #e2e8f0;
+        white-space: nowrap;
+      }
+      .stat-table td {
+        padding: 6px 8px;
+        color: #334155;
+        border-bottom: 1px solid #f1f5f9;
+        font-family: 'JetBrains Mono', monospace;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .stat-table th:first-child,
+      .stat-table td:first-child {
+        text-align: left;
+        width: 25%;
+      }
+      .stat-table tr:last-child td {
+        border-bottom: none;
+        font-weight: bold;
+        background: #f8fafc;
+      }
+      .title-text {
+         white-space: normal;
+         overflow: visible;
+         line-height: 1.3;
+      }
+      
+      @media (min-width: 641px) {
+        .col-set {
+          width: 70px;
+          display: flex;
+          gap: 4px;
+          justify-content: center;
+        }
+        .col-main {
+          flex: 1;
+          padding: 0 16px;
+        }
+        .col-price {
+          width: 200px;
+          text-align: right;
+        }
+      }
+      @media (max-width: 640px) {
+        .list-row {
+          flex-wrap: wrap;
+        }
+        .col-set {
+          width: 100%;
+          display: flex;
+          gap: 6px;
+          margin-bottom: 6px;
+        }
+        .col-main {
+          width: 100%;
+          margin-bottom: 6px;
+        }
+        .col-price {
+          width: 100%;
+          border-top: 1px dashed #f1f5f9;
+          padding-top: 6px;
+          text-align: right;
+        }
+      }
+      #error-log {
+        font-family: monospace;
+        font-size: 10px;
+        color: #ef4444;
+        background: #fef2f2;
+        border: 1px solid #fee2e2;
+        padding: 8px;
+        border-radius: 8px;
+        display: none;
+        margin-bottom: 12px;
+      }
+      #calculator-bar {
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+        transition: transform 0.3s;
+        z-index: 50;
+      }
+      .calc-hidden {
+        transform: translateY(120%);
+      }
+    </style>
+  </head>
+  <body class="pb-32 text-sm hide-small">
+    <div class="max-w-5xl mx-auto p-2 md:p-6 space-y-3">
+      <header class="card p-3 flex justify-between items-center sticky top-0 z-40 bg-white/95 backdrop-blur">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-slate-900 text-white rounded-lg flex items-center justify-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              data-lucide="zap"
+              aria-hidden="true"
+              class="lucide lucide-zap w-4 h-4"
+            >
+              <path
+                d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"
+              ></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="font-bold text-slate-900 leading-none">Hedge V33</h1>
+            <span class="text-[10px] text-blue-600 font-medium">Public</span>
+          </div>
+        </div>
+      </header>
+
+      <div id="error-log" style="display: block">[OP Error] 0xfc30: Failed to fetch</div>
+
+      <section class="card p-4 space-y-3 relative z-30">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <div class="flex justify-between items-center px-1">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold text-slate-500">BSC (Op)</span>
+                <input type="number" id="opFeeDiscount" onchange="app.saveFeeDiscount(this.value)" class="w-[70px] bg-white rounded px-1.5 py-0.5 border border-slate-200 text-[10px] outline-none focus:border-blue-500" placeholder="折扣(%)" title="OP手续费折扣百分比，如50即为打5折" />
+              </div>
+              <button onclick="app.resetInputs()" class="text-[10px] text-blue-600 hover:underline">Reset</button>
+            </div>
+            <textarea
+              id="addressInput"
+              oninput="app.handleInput(this)"
+              rows="3"
+              placeholder="Input address..."
+              class="input-clean font-mono text-xs text-slate-600"
+            ></textarea>
+          </div>
+          <div class="space-y-1">
+            <div class="flex justify-between items-center px-1">
+              <span class="text-[10px] font-bold text-slate-500">Polygon (Pm)</span>
+            </div>
+            <textarea
+              id="polyAddressInput"
+              rows="3"
+              placeholder="Input address..."
+              class="input-clean font-mono text-xs text-slate-600"
+            ></textarea>
+          </div>
+        </div>
+        <div class="flex justify-end pt-2 border-t border-slate-100">
+          <button
+            onclick="app.start()"
+            id="queryBtn"
+            class="px-6 py-2 text-xs font-bold text-white bg-slate-900 rounded-lg shadow hover:bg-slate-800 transition-transform active:scale-95 flex items-center gap-2"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              data-lucide="play"
+              aria-hidden="true"
+              class="lucide lucide-play w-3 h-3"
+            >
+              <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"></path>
+            </svg>
+            开始分析
+          </button>
+        </div>
+      </section>
+
+      <div id="loading" class="py-6 text-center hidden">
+        <div class="inline-block w-5 h-5 border-2 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+        <p class="mt-2 text-xs text-slate-400 font-medium">
+          Fetching Data... <span id="loading-txt">Refreshing Depth...</span>
+        </p>
+      </div>
+
+      <section id="wallet-stats" class="space-y-3 fade-in">
+        <div
+          class="flex flex-wrap justify-between items-center bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm gap-3"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-bold text-slate-800 flex items-center gap-2"
+              ><svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                data-lucide="wallet"
+                aria-hidden="true"
+                class="lucide lucide-wallet w-3 h-3 text-slate-400"
+              >
+                <path
+                  d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"
+                ></path>
+                <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"></path>
+              </svg>
+              Assets</span
+            >
+            <input
+              type="number"
+              id="principal"
+              onchange="app.savePrincipal(this.value)"
+              class="w-20 text-xs bg-slate-50 rounded px-2 py-1 text-right font-mono font-bold outline-none"
+              placeholder="本金"
+            />
+          </div>
+          <div class="text-xs font-mono-num font-bold bg-slate-50 px-2 py-1 rounded">
+            PnL: <span id="pnl-display">-</span>
+          </div>
+        </div>
+        <div id="wallet-summary-container" class="card p-3 hidden">
+            <table class="stat-table">
+                <thead>
+                    <tr>
+                        <th style="width:20%">Wallet</th>
+                        <th>Balance</th>
+                        <th>Epoch Vol</th>
+                        <th>PnL (Unreal)</th>
+                        <th>NAV (Off)</th>
+                        <th>NAV (Bid)</th>
+                        <th>NAV (Ask)</th>
+                    </tr>
+                </thead>
+                <tbody id="wallet-summary-body"></tbody>
+            </table>
+        </div>
+      </section>
+
+      <section id="results" class="space-y-4 fade-in pt-2">
+        <div class="flex justify-between items-end pb-2 border-b border-slate-200">
+          <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              data-lucide="layers"
+              aria-hidden="true"
+              class="lucide lucide-layers w-4 h-4 text-slate-400"
+            >
+              <path
+                d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"
+              ></path>
+              <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"></path>
+              <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"></path>
+            </svg>
+            Positions
+          </h2>
+          <div class="flex gap-2">
+            <button
+              onclick="app.clearSavedGroups()"
+              class="text-xs font-bold text-red-500 border border-red-100 bg-white px-2 py-1 rounded hover:bg-red-50"
+            >
+              Clean
+            </button>
+            <button
+              onclick="app.exportCSV()"
+              class="text-xs font-bold text-blue-600 border border-blue-100 bg-white px-2 py-1 rounded hover:bg-blue-50"
+            >
+              CSV
+            </button>
+          </div>
+        </div>
+        <div id="groups-container" class="space-y-3"></div>
+        <div class="card">
+          <div
+            class="hidden md:flex bg-slate-50 border-b border-slate-200 px-4 py-1 text-[10px] font-bold text-slate-400 uppercase"
+          >
+            <div class="w-[70px] text-center">Set</div>
+            <div class="flex-1 px-4">Title</div>
+            <div class="w-[200px] text-right">Quote Preview</div>
+          </div>
+          <div id="result-body" class="divide-y divide-slate-50"></div>
+        </div>
+      </section>
+    </div>
+
+    <div
+      id="calculator-bar"
+      class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-lg border-t border-slate-200 px-4 py-2 z-50 calc-hidden pb-6 md:pb-2"
+    >
+      <div class="max-w-5xl mx-auto flex flex-col md:flex-row gap-3 items-center justify-between">
+        <div class="flex items-center gap-4 w-full md:w-auto justify-between">
+          <div class="flex flex-col">
+            <span class="text-[9px] font-bold text-slate-400 uppercase">Exposure</span
+            ><span id="calc-net" class="font-mono-num font-bold text-slate-900 text-lg leading-none">0</span>
+          </div>
+          <div class="flex gap-2">
+            <input
+              type="text"
+              id="groupName"
+              placeholder="Group Name"
+              class="w-24 input-clean bg-white text-xs border"
+            />
+            <button onclick="app.saveGroup()" class="bg-blue-600 text-white px-3 py-1 rounded text-xs font-bold">
+              Save
+            </button>
+            <button onclick="app.clearSel()" class="bg-slate-100 text-slate-500 px-3 py-1 rounded text-xs font-bold">
+              Cancel
+            </button>
+          </div>
+        </div>
+        <div class="hidden md:flex gap-6 text-xs font-mono-num pl-4 border-l border-slate-200">
+          <div class="text-green-600 font-bold">A: <span id="calc-a">0</span></div>
+          <div class="text-red-600 font-bold">B: <span id="calc-b">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const app = {
+        conf: {
+          KEY_GROUPS: 'hedge_groups_v7_3',
+          KEY_SAVED_BSC: 'user_saved_bsc_v1',
+          KEY_SAVED_POLY: 'user_saved_poly_v1',
+          KEY_PRINCIPAL: 'user_principal_v1',
+          KEY_FEE_DISCOUNT: 'user_op_fee_discount_v1',
+          K_ENC: 'T1dJNlhnamZ3Y0Q4OWxzRGRXTUtyRzVJTXcwS1BtU0w=' 
+        },
+        data: { map: new Map(), sel: new Map(), book: new Map(), wStats: new Map() },
+        state: { apiKey: '', expanded: new Set(), expandedWallets: new Set() },
+
+        init: function () {
+          this.unlock(); 
+          const sBsc = localStorage.getItem(this.conf.KEY_SAVED_BSC)
+          if (sBsc) {
+            document.getElementById('addressInput').value = sBsc
+          }
+          document.getElementById('polyAddressInput').value = localStorage.getItem(this.conf.KEY_SAVED_POLY) || ''
+          document.getElementById('principal').value = localStorage.getItem(this.conf.KEY_PRINCIPAL) || ''
+          document.getElementById('opFeeDiscount').value = localStorage.getItem(this.conf.KEY_FEE_DISCOUNT) || ''
+          
+          if (typeof lucide !== 'undefined') lucide.createIcons()
+        },
+
+        log: function (msg) {
+          const el = document.getElementById('error-log')
+          el.style.display = 'block'
+          el.innerText = msg
+          console.log(msg)
+        },
+
+        handleInput: function (el) {
+          localStorage.setItem(this.conf.KEY_SAVED_BSC, el.value)
+        },
+
+        unlock: function () {
+          try {
+            this.state.apiKey = window.atob(this.conf.K_ENC)
+          } catch (e) {}
+        },
+
+        resetInputs: function () {
+          if (confirm('Reset?')) {
+            document.getElementById('addressInput').value = ''
+            document.getElementById('polyAddressInput').value = ''
+            document.getElementById('opFeeDiscount').value = ''
+            localStorage.removeItem(this.conf.KEY_SAVED_BSC)
+            localStorage.removeItem(this.conf.KEY_SAVED_POLY)
+            localStorage.removeItem(this.conf.KEY_FEE_DISCOUNT)
+          }
+        },
+
+        start: async function () {
+          if (!this.state.apiKey) this.unlock()
+
+          document.getElementById('error-log').style.display = 'none'
+          const btn = document.getElementById('queryBtn')
+          btn.disabled = true
+          btn.innerHTML = '<i class="animate-spin" data-lucide="loader-2"></i> ...'
+          document.getElementById('loading').classList.remove('hidden')
+          document.getElementById('groups-container').innerHTML = ''
+          document.getElementById('result-body').innerHTML = ''
+          document.getElementById('wallet-summary-container').classList.add('hidden')
+
+          this.data.map.clear()
+          this.data.sel.clear()
+          this.data.book.clear()
+          this.data.wStats.clear()
+
+          const parse = (v) =>
+            v
+              .split('\n')
+              .filter((x) => x.trim().length > 10)
+              .map((x) => {
+                const m = x.match(/(0x[a-fA-F0-9]+)/)
+                if (m) {
+                  const remark = x
+                    .replace(m[1], '')
+                    .replace(/[()（）]/g, '')
+                    .trim()
+                  this.data.book.set(m[1].toLowerCase(), remark)
+                  return { addr: m[1], remark }
+                }
+                return null
+              })
+              .filter((x) => x)
+
+          const bscW = parse(document.getElementById('addressInput').value)
+          const polyW = parse(document.getElementById('polyAddressInput').value)
+          
+          bscW.forEach(w => this.data.wStats.set(w.remark || w.addr, { pnl: 0, realizedPnl: 0, vol: 0, navOfficial: 0, navBid: 0, navAsk: 0, balance: 0, type: 'OP', addr: w.addr }));
+          polyW.forEach(w => this.data.wStats.set(w.remark || w.addr, { pnl: 0, realizedPnl: 0, vol: 0, navOfficial: 0, navBid: 0, navAsk: 0, balance: 0, type: 'PM', addr: w.addr }));
+
+          try {
+            const promises = []
+
+            bscW.forEach((w) => {
+              promises.push(
+                this.fetchOpPositionsPaged(w)
+                  .catch((e) => this.log(`[OP Error] ${w.remark || w.addr.slice(0, 6)}: ${e.message}`))
+              );
+              promises.push(this.fetchTrades(w));
+              promises.push(this.fetchOpBalance(w));
+            })
+
+            polyW.forEach((w) => {
+              let url = `https://data-api.polymarket.com/positions?user=${w.addr}&sortBy=CURRENT&sortDirection=DESC&limit=100` 
+
+              promises.push(
+                this.fetchWithRetry(url)
+                  .then((r) => r.json())
+                  .then((d) => {
+                    ;(Array.isArray(d) ? d : d.data || []).forEach((i) =>
+                      this.process(
+                        {
+                          id: i.token_id || i.asset,
+                          title: i.title,
+                          outcome: i.outcome,
+                          size: i.size,
+                          plat: 'PM',
+                          currentValue: i.currentValue || i.current_value || 0
+                        },
+                        w,
+                        'PM'
+                      )
+                    )
+                  })
+                  .catch((e) => {})
+              )
+            })
+
+            await Promise.all(promises)
+            document.getElementById('loading-txt').innerText = 'Fetch Depth (Fast Mode)...'
+            await this.fetchDepths()
+
+            this.renderAll()
+            document.getElementById('results').classList.remove('hidden')
+            document.getElementById('wallet-stats').classList.remove('hidden')
+          } catch (e) {
+            alert('Fatal: ' + e.message)
+          } finally {
+            document.getElementById('loading').classList.add('hidden')
+            btn.disabled = false
+            btn.innerHTML = '<i data-lucide="play" class="w-3 h-3"></i> 开始分析'
+            lucide.createIcons()
+          }
+        },
+
+        fetchWithRetry: async function(url, opts, retries = 3, backoff = 1000) {
+            try {
+                const res = await fetch(url, opts);
+                if (res.status === 429) throw new Error("429");
+                return res;
+            } catch (e) {
+                if (retries > 0 && (e.message === "429" || e.message === "Failed to fetch")) {
+                    console.warn(`Retrying ${url} in ${backoff}ms...`);
+                    await new Promise(r => setTimeout(r, backoff));
+                    return this.fetchWithRetry(url, opts, retries - 1, backoff * 1.5);
+                }
+                throw e;
+            }
+        },
+
+        fetchOpPositionsPaged: async function(w) {
+            let page = 1;
+            let hasMore = true;
+            let fetchedCount = 0;
+            
+            while(hasMore) {
+                let url = `https://openapi.opinion.trade/openapi/positions/user/${w.addr}?page=${page}&limit=20`;
+                let fetchOpts = { headers: { apiKey: this.state.apiKey } };
+                
+                let res = await this.fetchWithRetry(url, fetchOpts);
+                if (!res.ok) throw new Error(`${res.status} ${await res.text()}`);
+                
+                let d = await res.json();
+                const list = d?.result?.list || d?.data || d || [];
+                const total = d?.result?.total || 0;
+                
+                if (Array.isArray(list) && list.length > 0) {
+                    list.forEach((i) => this.process(i, w, 'OP'));
+                    fetchedCount += list.length;
+                    
+                    if (total > 0 && fetchedCount < total) {
+                        page++;
+                    } else if (total === 0 && list.length === 20) {
+                        page++;
+                    } else {
+                        hasMore = false;
+                    }
+                } else {
+                    hasMore = false;
+                }
+                await new Promise(r => setTimeout(r, 200));
+            }
+        },
+
+        fetchOpBalance: async function(w) {
+            try {
+                let url = `https://proxy.opinion.trade:8443/api/bsc/api/v2/user/${w.addr}/profile?chainId=56`;
+                const r = await this.fetchWithRetry(url);
+                if (r.ok) {
+                    const d = await r.json();
+                    let raw = 0;
+                    if (d.result?.balance && Array.isArray(d.result.balance) && d.result.balance[0]) {
+                        raw = d.result.balance[0].totalBalance || d.result.balance[0].balance;
+                    } else if (d.result?.balance?.balance) {
+                        raw = d.result.balance.totalBalance || d.result.balance.balance;
+                    } else {
+                        raw = d.totalBalance || d.balance || d.data?.balance || 0;
+                    }
+                    const bal = parseFloat(raw);
+                    const stat = this.data.wStats.get(w.remark || w.addr);
+                    if (stat) {
+                        stat.balance = bal;
+                    }
+                }
+            } catch (e) { console.log("Bal fetch err", e); }
+        },
+
+        fetchTrades: async function(w) {
+            try {
+                let url = `https://openapi.opinion.trade/openapi/trade/user/${w.addr}?limit=100`;
+                let fetchOpts = { headers: { apiKey: this.state.apiKey } };
+                const r = await this.fetchWithRetry(url, fetchOpts);
+                if(r.ok) {
+                    const d = await r.json();
+                    const list = d?.result?.list || [];
+                    
+                    // 计算最近一个周四的 00:00 UTC
+                    const now = new Date();
+                    const dayOfWeek = now.getUTCDay(); // 0 (Sun) - 6 (Sat)
+                    // 如果今天是周四（4）且过了0点，则返回0；如果是周五（5）则返回1；周三（3）则返回6
+                    const daysSinceThursday = (dayOfWeek >= 4) ? (dayOfWeek - 4) : (dayOfWeek + 7 - 4);
+                    const lastThursdayUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - daysSinceThursday, 0, 0, 0, 0)).getTime();
+
+                    let vol = 0;
+                    let realized = 0;
+                    list.forEach(t => {
+                        let ts = t.createdAt;
+                        if(ts < 10000000000) ts *= 1000;
+                        if (ts >= lastThursdayUTC) {
+                            vol += parseFloat(t.amount || 0);
+                        }
+                        realized += parseFloat(t.profit || 0);
+                    });
+                    const stat = this.data.wStats.get(w.remark || w.addr);
+                    if(stat) {
+                        stat.vol = vol;
+                        stat.realizedPnl = realized;
+                    }
+                }
+            } catch(e) { console.log("Trade fetch err", e); }
+        },
+
+        process: function (raw, w, plat) {
+          const tokenId = raw.tokenId || raw.token_id || raw.id;
+          const marketId = raw.marketId || raw.id;
+          const id = marketId;
+          
+          if (!id) return
+          
+          const size = parseFloat(raw.sharesOwned || raw.size || raw.amount || 0)
+          
+          if (isNaN(size) || size < 5) return 
+          
+          let title = raw.title || raw.question || 'Unknown';
+          if (plat === 'OP') {
+              title = raw.rootMarketTitle || '';
+              if (raw.marketTitle) title += ' ' + raw.marketTitle;
+          }
+
+          const key = `${plat}-${id}-${raw.outcome}`
+          const walletKey = w.remark || w.addr; 
+
+          if (this.data.map.has(key)) {
+            const ex = this.data.map.get(key)
+            ex.total += size
+            const existingDetail = ex.details.find(d => d.w === walletKey);
+            if (existingDetail) {
+                existingDetail.s += size;
+            } else {
+                ex.details.push({ w: walletKey, s: size });
+            }
+          } else {
+            this.data.map.set(key, {
+              key,
+              id,
+              tokenId: tokenId,
+              plat,
+              title: title,
+              side: raw.outcome || 'UNK',
+              total: size,
+              topic: plat === 'OP' ? 'Opinion' : 'Polymarket',
+              details: [{ w: walletKey, s: size }],
+              depth: { asks: [], bids: [] }
+            })
+          }
+
+          const stat = this.data.wStats.get(walletKey);
+          if (stat) {
+             if (plat === 'OP') {
+                  stat.pnl += parseFloat(raw.unrealizedPnl || 0);
+                  stat.navOfficial += parseFloat(raw.currentValueInQuoteToken || 0);
+             } else if (plat === 'PM') {
+                  stat.navOfficial += parseFloat(raw.currentValue || 0);
+             }
+          }
+        },
+
+        toggleDetail: function (uid) {
+          if (this.state.expanded.has(uid)) this.state.expanded.delete(uid)
+          else this.state.expanded.add(uid)
+          this.renderAll()
+        },
+        
+        toggleWallet: function(name) {
+            if (this.state.expandedWallets.has(name)) this.state.expandedWallets.delete(name);
+            else this.state.expandedWallets.add(name);
+            this.renderWalletStats();
+        },
+
+        refreshItem: async function (uid, btn) {
+          event.stopPropagation()
+          const item = this.data.map.get(uid)
+          if (!item) return
+          const icon = btn.querySelector('svg')
+          if (icon) icon.classList.add('spin-anim')
+          await this.fetchSingleDepth(item)
+          if (icon) icon.classList.remove('spin-anim')
+          this.renderAll()
+        },
+
+        fetchDepths: async function () {
+          const items = [...this.data.map.values()];
+          const BATCH_SIZE = 5; 
+          const DELAY_MS = 0; 
+          
+          for (let i = 0; i < items.length; i += BATCH_SIZE) {
+             const batch = items.slice(i, i + BATCH_SIZE);
+             await Promise.all(batch.map(item => this.fetchSingleDepth(item)));
+             if (i + BATCH_SIZE < items.length && DELAY_MS > 0) {
+                 await new Promise(resolve => setTimeout(resolve, DELAY_MS));
+             }
+          }
+        },
+
+        fetchSingleDepth: async function (item) {
+          let url,
+            fetchOpts = {}
+          try {
+            if (item.plat === 'OP') {
+              const targetId = item.tokenId || item.id;
+              url = `https://openapi.opinion.trade/openapi/token/orderbook?token_id=${targetId}`
+              fetchOpts = { headers: { apiKey: this.state.apiKey } }
+
+              const r = await this.fetchWithRetry(url, fetchOpts);
+              if (r.ok) {
+                const d = await r.json()
+                this.setDepth(item, d)
+              }
+            } else {
+              url = `https://clob.polymarket.com/book?token_id=${item.id}`
+              const r = await this.fetchWithRetry(url);
+              if (r.ok) {
+                const d = await r.json()
+                this.setDepth(item, d)
+              }
+            }
+          } catch (e) { console.error("Depth error", e); }
+        },
+
+        setDepth: function (item, json) {
+          if (!json) return
+          const d = json.result?.data || json.result || json.data || json
+          if (!d) return
+
+          const parse = (arr) =>
+            (arr || []).map((x) => {
+              let p, s;
+              if (Array.isArray(x)) {
+                 p = parseFloat(x[0]);
+                 s = parseFloat(x[1]);
+              } else {
+                 p = parseFloat(x.price || x.p || 0);
+                 s = parseFloat(x.size || x.volume || x.amount || x.quantity || x.shares || x.s || x.qty || 0);
+              }
+              return { p: p * 100, s: s };
+            })
+
+          let asks = parse(d.asks || d.offers)
+          let bids = parse(d.bids)
+
+          bids.sort((a, b) => b.p - a.p)
+          asks.sort((a, b) => a.p - b.p)
+
+          let topBids = bids.slice(0, 5)
+          let topAsks = asks.slice(0, 5)
+          topAsks.sort((a, b) => b.p - a.p)
+
+          item.depth = { asks: topAsks, bids: topBids }
+        },
+
+        calculateHedgePrices: function (itemsA, itemsB) {
+          const getBestAsk = (d) => (d.asks.length ? d.asks[d.asks.length - 1].p : 9999);
+          const getBestBid = (d) => (d.bids.length ? d.bids[0].p : -9999);
+          
+          const getFee = (p, plat) => {
+              if (plat !== 'OP' || p <= 0 || p >= 100) return 0;
+              const prob = p / 100;
+              const rate = 0.08 * prob * (1 - prob) * 0.9;
+              
+              const discountInput = document.getElementById('opFeeDiscount').value;
+              let discountMultiplier = 1;
+              if (discountInput !== '' && !isNaN(discountInput)) {
+                  discountMultiplier = parseFloat(discountInput) / 100;
+              }
+              
+              return rate * p * discountMultiplier; 
+          };
+
+          let bestBuy = { val: Infinity, text: '-' };
+          let bestSell = { val: -Infinity, text: '-' };
+
+          for (const a of itemsA) {
+            for (const b of itemsB) {
+              const askA = getBestAsk(a.depth);
+              const askB = getBestAsk(b.depth);
+              if (askA < 9000 && askB < 9000) {
+                 const feeA = getFee(askA, a.plat);
+                 const feeB = getFee(askB, b.plat);
+                 const cost = askA + askB + feeA + feeB;
+                 if (cost < bestBuy.val) {
+                    bestBuy.val = cost;
+                    bestBuy.text = `<span class="plat-tag">${a.plat}</span>${askA.toFixed(1)} + <span class="plat-tag">${b.plat}</span>${askB.toFixed(1)} + Fee(${(feeA+feeB).toFixed(2)}) = <span class="math-val">${cost.toFixed(2)}</span>`;
+                 }
+              }
+
+              const bidA = getBestBid(a.depth);
+              const bidB = getBestBid(b.depth);
+              if (bidA > -9000 && bidB > -9000) {
+                 const feeA = getFee(bidA, a.plat);
+                 const feeB = getFee(bidB, b.plat);
+                 const ret = bidA + bidB - feeA - feeB;
+                 if (ret > bestSell.val) {
+                    bestSell.val = ret;
+                    bestSell.text = `<span class="plat-tag">${a.plat}</span>${bidA.toFixed(1)} + <span class="plat-tag">${b.plat}</span>${bidB.toFixed(1)} - Fee(${(feeA+feeB).toFixed(2)}) = <span class="math-val">${ret.toFixed(2)}</span>`;
+                 }
+              }
+            }
+          }
+          return { bestBuy, bestSell };
+        },
+
+        renderAll: function () {
+          const gC = document.getElementById('groups-container')
+          const lC = document.getElementById('result-body')
+          gC.innerHTML = ''
+          lC.innerHTML = ''
+          const savedGroups = JSON.parse(localStorage.getItem(this.conf.KEY_GROUPS) || '[]')
+          const usedKeys = new Set()
+          
+          const processedGroups = savedGroups.map(g => {
+             let sa = 0, sb = 0;
+             let itemsA = [], itemsB = [];
+             for (const [uid, savedData] of Object.entries(g.sels)) {
+                if (this.data.map.has(uid)) {
+                   const item = this.data.map.get(uid);
+                   item._tempSide = typeof savedData === 'object' ? savedData.side : savedData;
+                   usedKeys.add(uid);
+                   if (item._tempSide === 'A') { itemsA.push(item); sa += item.total; }
+                   else { itemsB.push(item); sb += item.total; }
+                }
+             }
+             return { ...g, net: sa - sb, itemsA, itemsB };
+          });
+
+          processedGroups.sort((a, b) => Math.abs(b.net) - Math.abs(a.net));
+
+          processedGroups.forEach((g) => {
+            if (g.itemsA.length > 0 || g.itemsB.length > 0) {
+              const { bestBuy, bestSell } = this.calculateHedgePrices(g.itemsA, g.itemsB);
+              
+              let tipsHtml = '';
+              if (bestBuy.val !== Infinity) tipsHtml += `<div class="hedge-row hedge-buy"><span class="text-[10px] font-bold">BEST BUY</span> <div class="text-[10px]">${bestBuy.text}</div></div>`;
+              if (bestSell.val !== -Infinity) tipsHtml += `<div class="hedge-row hedge-sell"><span class="text-[10px] font-bold">BEST SELL</span> <div class="text-[10px]">${bestSell.text}</div></div>`;
+
+              let rows = [...g.itemsA, ...g.itemsB].map((i) => this.rowHtml(i)).join('')
+              
+              gC.innerHTML += `<div class="card"><div class="group-header"><span class="text-sm font-bold text-slate-800 flex items-center gap-2"><i data-lucide="bookmark" class="w-4 h-4"></i> ${
+                g.name
+              }</span><button onclick="app.delGroup(${
+                g.id
+              })" class="text-slate-400 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><div class="divide-y divide-slate-50">${rows}</div><div class="strategy-box">${tipsHtml}</div><div class="group-footer"><div class="flex items-center gap-2 text-sm ml-auto"><span class="text-slate-500">Net:</span> <span class="font-bold font-mono-num ${
+                g.net > 0 ? 'text-green-600' : g.net < 0 ? 'text-red-600' : 'text-slate-400'
+              }">${parseInt(g.net)}</span></div></div></div>`
+            }
+          })
+
+          const list = [...this.data.map.values()].filter((x) => !usedKeys.has(x.key))
+          
+          list.sort((a, b) => {
+             const tA = a.title.toLowerCase();
+             const tB = b.title.toLowerCase();
+             if (tA < tB) return -1;
+             if (tA > tB) return 1;
+             return b.total - a.total;
+          });
+          
+          if (list.length > 0) {
+            lC.innerHTML += `<div class="p-2 bg-slate-50 text-center text-xs font-bold text-slate-400 border-b border-slate-200">--- Ungrouped ---</div>`
+            list.forEach((item) => {
+                if (item.plat === 'PM' && (!item.depth.asks || item.depth.asks.length === 0) && (!item.depth.bids || item.depth.bids.length === 0)) {
+                    return; 
+                }
+                lC.innerHTML += this.rowHtml(item)
+            })
+          }
+          
+          this.computeWalletNav();
+          this.renderWalletStats();
+
+          this.toggleSmall()
+          lucide.createIcons()
+          this.updateCalcUI()
+        },
+        
+        computeWalletNav: function() {
+            this.data.wStats.forEach(s => { s.navBid = 0; s.navAsk = 0; });
+
+            this.data.map.forEach(item => {
+                const bestBid = (item.depth.bids[0]?.p || 0) / 100;
+                const asks = item.depth.asks;
+                const bestAsk = (asks.length ? asks[asks.length - 1].p : 0) / 100;
+
+                item.details.forEach(d => {
+                    const wName = d.w;
+                    const size = d.s;
+                    const stat = this.data.wStats.get(wName);
+                    if (stat) {
+                        stat.navBid += size * bestBid;
+                        stat.navAsk += size * (bestAsk || 0);
+                    }
+                });
+            });
+        },
+
+        renderWalletStats: function() {
+            const tbody = document.getElementById('wallet-summary-body');
+            tbody.innerHTML = '';
+            
+            let tVol = 0, tBal = 0, tPnl = 0, tNavOff = 0, tNavBid = 0, tNavAsk = 0;
+            
+            this.data.wStats.forEach((s, name) => {
+                tVol += s.vol;
+                tBal += s.balance; 
+                const totalPnl = s.pnl + s.realizedPnl;
+                tPnl += totalPnl;
+                
+                let navOff = s.navOfficial + s.balance;
+                let navBid = s.navBid + s.balance;
+                let navAsk = s.navAsk + s.balance;
+
+                if (s.type === 'PM') {
+                    navBid = navOff;
+                    navAsk = navOff;
+                }
+
+                tNavOff += navOff;
+                tNavBid += navBid;
+                tNavAsk += navAsk;
+                
+                const isExpanded = this.state.expandedWallets.has(name);
+                
+                const row = `<tr onclick="app.toggleWallet('${name}')" style="cursor:pointer; background:${isExpanded ? '#f1f5f9' : 'transparent'}">
+                    <td style="text-align:left; color:#1e293b; display:flex; gap:4px; align-items:center;">
+                        ${isExpanded ? '<i data-lucide="chevron-down" class="w-3 h-3"></i>' : '<i data-lucide="chevron-right" class="w-3 h-3"></i>'} ${name}
+                    </td>
+                    <td>${s.balance > 0 ? s.balance.toLocaleString(undefined,{maximumFractionDigits:1}) : '-'}</td>
+                    <td>${s.vol.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+                    <td class="${totalPnl>=0?'text-green-600':'text-red-600'}">${totalPnl.toLocaleString(undefined,{maximumFractionDigits:1})}</td>
+                    <td>${navOff.toLocaleString(undefined,{maximumFractionDigits:1})}</td>
+                    <td>${navBid.toLocaleString(undefined,{maximumFractionDigits:1})}</td>
+                    <td>${navAsk.toLocaleString(undefined,{maximumFractionDigits:1})}</td>
+                </tr>`;
+                tbody.innerHTML += row;
+                
+                if (isExpanded) {
+                    let wItems = [];
+                    this.data.map.forEach(item => {
+                        const rec = item.details.find(d => d.w === name);
+                        if (rec) wItems.push({ title: item.title, side: item.side, size: rec.s, plat: item.plat });
+                    });
+                    const detailHtml = wItems.map(i => 
+                        `<div class="flex justify-between text-[10px] text-slate-500 py-0.5 pl-6 border-b border-slate-100 last:border-0">
+                            <span class="truncate pr-2">[${i.plat}] ${i.title} (${i.side})</span>
+                            <span class="font-mono-num">${parseInt(i.size)}</span>
+                         </div>`
+                    ).join('');
+                    
+                    tbody.innerHTML += `<tr><td colspan="7" class="p-0"><div class="bg-slate-50 border-b border-slate-200">${detailHtml || '<div class="p-2 text-center text-xs">No positions</div>'}</div></td></tr>`;
+                }
+            });
+
+            const totalRow = `<tr>
+                <td style="text-align:left; padding-left:20px;">Total</td>
+                <td>${tBal > 0 ? tBal.toLocaleString(undefined,{maximumFractionDigits:1}) : '-'}</td>
+                <td>${tVol.toLocaleString(undefined,{maximumFractionDigits:0})}</td>
+                <td class="${tPnl>=0?'text-green-600':'text-red-600'}">${tPnl.toLocaleString(undefined,{maximumFractionDigits:1})}</td>
+                <td>${tNavOff.toLocaleString(undefined,{maximumFractionDigits:1})}</td>
+                <td>${tNavBid.toLocaleString(undefined,{maximumFractionDigits:1})}</td>
+                <td>${tNavAsk.toLocaleString(undefined,{maximumFractionDigits:1})}</td>
+            </tr>`;
+            tbody.innerHTML += totalRow;
+            document.getElementById('wallet-summary-container').classList.remove('hidden');
+
+            const principal = parseFloat(document.getElementById('principal').value || 0);
+            const diffOff = tNavOff - principal;
+            const diffBid = tNavBid - principal;
+            const diffAsk = tNavAsk - principal;
+            
+            const fmt = (n) => (n > 0 ? '+' : '') + n.toFixed(1);
+            
+            document.getElementById('pnl-display').innerHTML = `
+               <span style="color:${diffOff>=0?'#16a34a':'#dc2626'}">Off:${fmt(diffOff)}</span> <span class="text-slate-300">|</span> 
+               <span style="color:${diffBid>=0?'#16a34a':'#dc2626'}">Bid:${fmt(diffBid)}</span> <span class="text-slate-300">|</span> 
+               <span style="color:${diffAsk>=0?'#16a34a':'#dc2626'}">Ask:${fmt(diffAsk)}</span>
+            `;
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        },
+
+        rowHtml: function (item) {
+          const domId = item.key.replace(/[^a-zA-Z0-9]/g, '')
+          const badge =
+            item.plat === 'PM' ? '<span class="badge badge-pm">PM</span>' : '<span class="badge badge-op">OP</span>'
+            
+          const mkRow = (arr, cls) =>
+            arr
+              .map(
+                (x) => `<div class="depth-row ${cls}"><span>${x.p.toFixed(1)}</span><span>${parseInt(x.s)}</span></div>`
+              )
+              .join('')
+          
+          const askH = item.depth.asks.length
+            ? mkRow(item.depth.asks, 'bg-ask')
+            : '<div class="text-center py-1 text-slate-300">-</div>'
+          const bidH = item.depth.bids.length
+            ? mkRow(item.depth.bids, 'bg-bid')
+            : '<div class="text-center py-1 text-slate-300">-</div>'
+            
+          const bestAsk = item.depth.asks.length ? item.depth.asks[item.depth.asks.length - 1].p.toFixed(1) : '-'
+          const bestBid = item.depth.bids.length ? item.depth.bids[0].p.toFixed(1) : '-'
+          
+          let clsA = 'btn-sel',
+            clsB = 'btn-sel'
+          const active = item._tempSide || this.data.sel.get(item.key)
+          if (active === 'A') clsA += ' active-a'
+          if (active === 'B') clsB += ' active-b'
+          const detailClass = this.state.expanded.has(item.key) ? 'block' : 'hidden'
+          return `<div class="list-row" onclick="app.toggleDetail('${
+            item.key
+          }')"><div class="col-set" onclick="event.stopPropagation()"><button onclick="app.tog('${
+            item.key
+          }','A')" class="${clsA} mr-1">A</button><button onclick="app.tog('${
+            item.key
+          }','B')" class="${clsB}">B</button></div><div class="col-main"><div class="font-bold text-slate-800 text-[13px] leading-snug flex items-center gap-1">${badge} <span class="title-text">${
+            item.title
+          }</span><button onclick="app.refreshItem('${
+            item.key
+          }', this)" class="btn-refresh" title="Refresh"><i data-lucide="rotate-cw" class="w-3 h-3"></i></button></div><div class="text-[10px] text-slate-400 mt-0.5 font-medium flex gap-2"><span>${
+            item.side
+          }</span> <span class="text-slate-300">|</span> <span>Vol: ${parseInt(
+            item.total
+          )}</span></div></div><div class="col-price font-mono-num text-xs font-bold"><span class="text-red-500">Ask ${bestAsk}</span> <span class="text-slate-300">/</span> <span class="text-green-600">Bid ${bestBid}</span></div></div><div id="d-${domId}" class="${detailClass} bg-slate-50 p-3 border-b border-slate-100 text-xs shadow-inner"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="depth-box"><div class="depth-header"><span>ASK (High->Low)</span><span>Vol</span></div><div class="flex flex-col gap-[1px]">${askH}</div><div class="depth-gap"></div><div class="depth-header"><span>BID (High->Low)</span><span>Vol</span></div><div class="flex flex-col gap-[1px]">${bidH}</div></div><div class="font-mono text-slate-500"><div class="font-bold mb-1 border-b border-slate-200 pb-1">Wallets</div>${item.details
+            .map((d) => `<div class="flex justify-between"><span>${d.w}</span><span>${parseInt(d.s)}</span></div>`)
+            .join('')}</div></div></div>`
+        },
+
+        tog: function (k, s) {
+          if (this.data.sel.get(k) === s) this.data.sel.delete(k)
+          else this.data.sel.set(k, s)
+          this.renderAll()
+        },
+        saveGroup: function () {
+          const n = document.getElementById('groupName').value
+          if (!n || !this.data.sel.size) return alert('Err')
+          const gs = JSON.parse(localStorage.getItem(this.conf.KEY_GROUPS) || '[]')
+          const obj = {}
+          this.data.sel.forEach((v, k) => (obj[k] = v))
+          gs.unshift({ id: Date.now(), name: n, sels: obj })
+          localStorage.setItem(this.conf.KEY_GROUPS, JSON.stringify(gs))
+          this.data.sel.clear()
+          document.getElementById('groupName').value = ''
+          this.renderAll()
+        },
+        delGroup: function (id) {
+          if (confirm('Del?')) {
+            const gs = JSON.parse(localStorage.getItem(this.conf.KEY_GROUPS) || '[]');
+            const g = gs.find(x => x.id === id);
+            if (g && g.sels) {
+                Object.keys(g.sels).forEach(k => this.data.sel.delete(k));
+            }
+            const newGs = gs.filter((x) => x.id !== id);
+            localStorage.setItem(this.conf.KEY_GROUPS, JSON.stringify(newGs))
+            this.renderAll()
+          }
+        },
+        clearSel: function () {
+          this.data.sel.clear()
+          this.renderAll()
+        },
+        clearSavedGroups: function () {
+          if (confirm('Clear?')) {
+            localStorage.removeItem(this.conf.KEY_GROUPS)
+            this.renderAll()
+          }
+        },
+        savePrincipal: function (v) {
+          localStorage.setItem(this.conf.KEY_PRINCIPAL, v)
+        },
+        saveFeeDiscount: function(v) {
+          localStorage.setItem(this.conf.KEY_FEE_DISCOUNT, v)
+          this.renderAll()
+        },
+        exportCSV: function () {
+          /* ... */
+        },
+        toggleSmall: function () {
+          document.body.classList.toggle('hide-small')
+        },
+        updateCalcUI: function () {
+          let a = 0,
+            b = 0
+          this.data.sel.forEach((s, k) => {
+            const i = this.data.map.get(k)
+            if (i) {
+              if (s === 'A') a += i.total
+              else b += i.total
+            }
+          })
+          document.getElementById('calc-net').innerText = parseInt(a - b)
+          document.getElementById('calc-a').innerText = parseInt(a)
+          document.getElementById('calc-b').innerText = parseInt(b)
+          const bar = document.getElementById('calculator-bar')
+          if (a + b > 0) bar.classList.remove('calc-hidden')
+          else bar.classList.add('calc-hidden')
+        }
+      }
+      window.onload = function () {
+        app.init()
+      }
+    </script>
+  </body>
+</html>
